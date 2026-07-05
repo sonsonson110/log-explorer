@@ -1,0 +1,22 @@
+{
+  "name": "server-node",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.0.0",
+    "contracts": "*",
+    "fastify": "^4.28.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.10",
+    "@types/node": "^20.14.9",
+    "tsx": "^4.16.0",
+    "typescript": "^5.4.5"
+  }
+}
