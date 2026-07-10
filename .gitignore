@@ -14,10 +14,8 @@ dist-ssr/
 .env.production.local
 
 # Databases and data logs
-*.db
-*.db-journal
-*.db-wal
 data/
+db/
 
 # IDE / System files
 .DS_Store
