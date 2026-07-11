@@ -1,37 +1,34 @@
 import { create } from 'zustand';
 
-export type ViewerStatus = 'idle' | 'loading' | 'searching';
+export type ViewerStatus = 'idle' | 'loading' | 'searching' | 'error';
 
 interface ViewerState {
-  viewportStart: number;
-  viewportEnd: number;
-  query: string;
   status: ViewerStatus;
+  query: string;
+  cursor: string | null;
+  hasMore: boolean;
+  totalLines: number | null;
+  errorMessage: string | null;
   
-  // Actions stubs
-  setViewport: (start: number, end: number) => void;
-  setQuery: (query: string) => void;
+  // Actions
   setStatus: (status: ViewerStatus) => void;
+  setQuery: (query: string) => void;
+  setCursor: (cursor: string | null, hasMore: boolean) => void;
+  setTotalLines: (totalLines: number) => void;
+  setError: (message: string | null) => void;
 }
 
 export const useViewerStore = create<ViewerState>((set) => ({
-  viewportStart: 0,
-  viewportEnd: 100,
-  query: '',
   status: 'idle',
+  query: '',
+  cursor: '1', // start at line 1
+  hasMore: true,
+  totalLines: null,
+  errorMessage: null,
 
-  setViewport: (start, end) => {
-    // TODO: Update state to track viewport index bounds
-    set({ viewportStart: start, viewportEnd: end });
-  },
-
-  setQuery: (query) => {
-    // TODO: Set filter search query for logs
-    set({ query });
-  },
-
-  setStatus: (status) => {
-    // TODO: Set loading or searching lifecycle status
-    set({ status });
-  }
+  setStatus: (status) => set({ status }),
+  setQuery: (query) => set({ query }),
+  setCursor: (cursor, hasMore) => set({ cursor, hasMore }),
+  setTotalLines: (totalLines) => set({ totalLines }),
+  setError: (errorMessage) => set({ errorMessage, status: errorMessage ? 'error' : 'idle' }),
 }));

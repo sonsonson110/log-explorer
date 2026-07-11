@@ -19,8 +19,10 @@ not a scan).
 
 ## M2 — Frontend: naive fetch + render (no worker yet)
 
-- [ ] `fetchChunk` calls the real backend
-- [ ] Non-virtualized list renders chunk data on scroll
+- [x] `fetchChunk` calls the real backend
+- [x] Non-virtualized list renders chunk data on scroll
+
+**Completion Note:** Naive React state list appending chunks of 200 lines, DOM node count grows dynamically on scroll (200 -> 400 -> 600+), causing noticeable rendering latency as it grows.
 
 **Definition of done:** scrolls through the test dataset, visibly janky —
 this is the intentional "before" baseline for M3.
