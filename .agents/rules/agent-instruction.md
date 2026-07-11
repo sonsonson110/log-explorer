@@ -51,6 +51,32 @@ instead of quietly working around it.
   (`{ matches, scannedTo, hasMore }`). Never loop `chunk` calls to walk
   toward a distant match.
 
+## HTTP request file — keep in sync with every endpoint change
+`apps/server-node/requests/logs.http` is the canonical manual test file.
+**Any time you add, modify, or delete a server endpoint you must also
+update this file in the same change.** Do not leave it stale.
+
+### Conventions to follow exactly
+- File-level variable: `@baseUrl = http://localhost:3001` at the top.
+- One section per route family, separated by a banner comment:
+  ```
+  # ─────────────────────────────────────────────────────────────
+  # GET /logs/:id/chunk
+  # ─────────────────────────────────────────────────────────────
+  ```
+- Each request block starts with `### <label> — <what it tests>`.
+- Happy-path cases first, error/edge cases last within each section.
+- Separate consecutive request blocks with a bare `###` (blank separator).
+- Every request block must have a `### <label>` comment — never a bare
+  `GET` with no label.
+- Comments on error-case blocks must state the expected HTTP status, e.g.
+  `### Bad cursor format — expect 400`.
+- Use `{{baseUrl}}` variable, never hard-code `localhost:3001`.
+- Cover at minimum for each endpoint:
+  1. Normal / happy path (at least one real-data example)
+  2. Edge cases specific to that endpoint (e.g. last page, mid-file seek)
+  3. Known error paths (bad param, unknown id, out-of-range values)
+
 ## Repo structure
 ```
 apps/web             Vite + React + TS + Zustand

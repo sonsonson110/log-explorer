@@ -1,8 +1,4 @@
 # Log Explorer — endpoint smoke tests
-# Requires the REST Client VS Code extension (humao.rest-client).
-# Start the server first:  just dev-node
-#
-# Usage: click "Send Request" above any ### block.
 
 @baseUrl = http://localhost:3001
 
