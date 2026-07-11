@@ -1,0 +1,73 @@
+# Log Explorer — endpoint smoke tests
+# Requires the REST Client VS Code extension (humao.rest-client).
+# Start the server first:  just dev-node
+#
+# Usage: click "Send Request" above any ### block.
+
+@baseUrl = http://localhost:3001
+
+# ─────────────────────────────────────────────────────────────
+# Health
+# ─────────────────────────────────────────────────────────────
+
+### Health check
+GET {{baseUrl}}/health
+
+
+# ─────────────────────────────────────────────────────────────
+# GET /logs/:id/meta
+# ─────────────────────────────────────────────────────────────
+
+### Apache — meta (total lines, time range, file size)
+GET {{baseUrl}}/logs/apache/meta
+
+###
+
+### Unknown log id — expect 404
+GET {{baseUrl}}/logs/does-not-exist/meta
+
+
+# ─────────────────────────────────────────────────────────────
+# GET /logs/:id/chunk?cursor&limit
+# ─────────────────────────────────────────────────────────────
+
+### First page — start of file (cursor = first indexed line_no)
+GET {{baseUrl}}/logs/apache/chunk?cursor=1&limit=10
+
+###
+
+### Cursor-chain — pass the nextCursor from the previous response
+# Replace the cursor value with the `nextCursor` you got above.
+GET {{baseUrl}}/logs/apache/chunk?cursor=11&limit=10
+
+###
+
+### Mid-file seek — proves the index is used, not a full scan
+# This should be just as fast as the first-page request.
+GET {{baseUrl}}/logs/apache/chunk?cursor=26000&limit=50
+
+###
+
+### Large page — maximum allowed limit
+GET {{baseUrl}}/logs/apache/chunk?cursor=1&limit=1000
+
+###
+
+### Near end of file — last page returns fewer lines, nextCursor = null
+GET {{baseUrl}}/logs/apache/chunk?cursor=56470&limit=100
+
+###
+
+### Bad cursor format — expect 400
+GET {{baseUrl}}/logs/apache/chunk?cursor=not-a-number&limit=10
+
+###
+
+### Cursor not in index (skipped line) — expect 404
+# Lines that didn't match the Apache log pattern were not indexed.
+GET {{baseUrl}}/logs/apache/chunk?cursor=99999&limit=10
+
+###
+
+### limit out of range — expect 400 (limit > 1000)
+GET {{baseUrl}}/logs/apache/chunk?cursor=1&limit=9999

@@ -8,9 +8,8 @@ Status legend: `[ ]` not started · `[~]` in progress · `[x]` done
 - [x] Pick a loghub dataset (start: SSH or Apache, a few hundred MB)
 - [x] Define index schema (line_no, byte_offset, timestamp, level) in SQLite
 - [x] Streaming indexer, transaction-wrapped, run standalone from the CLI
-- [ ] `GET /logs/:id/meta`
-- [ ] `GET /logs/:id/chunk?cursor&limit` — seeks via the index, handles
-      boundary line-splitting correctly
+- [x] `GET /logs/:id/meta` — single aggregate query (COUNT/MIN/MAX over index_entries + fs.stat for file size)
+- [x] `GET /logs/:id/chunk?cursor&limit` — sentinel-row technique: look up offset for line_no and line_no+limit, read exact byte range, split; no partial-line trimming needed
 
 **Definition of done:** indexer runs on the full file without loading it
 into memory at once. `chunk` returns continuous, non-overlapping results

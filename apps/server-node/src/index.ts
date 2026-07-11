@@ -1,4 +1,5 @@
 import Fastify from 'fastify';
+import { logRoutes } from './routes/logs.js';
 
 const fastify = Fastify({
   logger: true
@@ -8,6 +9,9 @@ const fastify = Fastify({
 fastify.get('/health', async (_request, _reply) => {
   return { status: 'ok' };
 });
+
+// Log query endpoints: /logs/:id/meta, /logs/:id/chunk, etc.
+fastify.register(logRoutes);
 
 const start = async () => {
   try {
@@ -20,3 +24,4 @@ const start = async () => {
 };
 
 start();
+
