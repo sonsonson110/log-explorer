@@ -38,3 +38,31 @@ export interface FilterRequest {
   cursor: string;
   limit: number;
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Web Worker protocol — postMessage shapes for the main-thread ↔ log worker
+// channel. Import these on both sides so the contract is enforced at compile
+// time.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Messages sent from the main thread to the log worker. */
+export type WorkerRequest =
+  | { type: "FETCH_CHUNK"; cursor: string; limit: number }
+  | { type: "PREFETCH"; cursor: string; limit: number };
+
+/** Messages sent from the log worker back to the main thread. */
+export type WorkerResponse =
+  | {
+      type: "CHUNK_READY";
+      /** The cursor that was requested — lets the receiver match request to response. */
+      cursor: string;
+      lines: string[];
+      nextCursor: string | null;
+      hasMore: boolean;
+    }
+  | {
+      type: "ERROR";
+      /** The cursor that failed. */
+      cursor: string;
+      message: string;
+    };

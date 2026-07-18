@@ -29,7 +29,7 @@ this is the intentional "before" baseline for M3.
 
 ## M3 — Move cache + fetch into a Web Worker, add LRU
 
-- [ ] Worker owns chunk fetch + cache
+- [x] Worker owns chunk fetch + cache — `logWorker.ts` (Map cache, unbounded), `useLogWorker.ts` hook; main thread postMessages only, zero direct chunk fetches
 - [ ] Byte-budget LRU eviction (Map-based)
 - [ ] Main thread only sends/receives postMessage; store holds view state only
 

@@ -15,7 +15,7 @@ function App() {
       >
         <h1 className="text-xl font-bold text-zinc-100">Log Explorer</h1>
         <div className="text-xs text-zinc-500 font-medium">
-          v0.2.0 (M2 Naive)
+          v0.3.0 (M3 Worker Cache)
         </div>
       </header>
       <main className="flex-1 flex flex-col justify-stretch">
