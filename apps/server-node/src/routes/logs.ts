@@ -97,12 +97,13 @@ export async function logRoutes(fastify: FastifyInstance) {
     const row = db
       .prepare(
         `SELECT
-           COUNT(*)          AS totalLines,
+           COUNT(*)          AS indexedEntries,
+           MAX(line_no)      AS totalPhysicalLines,
            MIN(timestamp)    AS minTimestamp,
            MAX(timestamp)    AS maxTimestamp
          FROM index_entries`,
       )
-      .get() as { totalLines: number; minTimestamp: number | null; maxTimestamp: number | null };
+      .get() as { indexedEntries: number; totalPhysicalLines: number; minTimestamp: number | null; maxTimestamp: number | null };
 
     let fileSizeBytes = 0;
     if (fs.existsSync(entry.logPath)) {
@@ -110,7 +111,8 @@ export async function logRoutes(fastify: FastifyInstance) {
     }
 
     const response: MetaResponse = {
-      totalLines: row.totalLines,
+      indexedEntries: row.indexedEntries,
+      totalPhysicalLines: row.totalPhysicalLines ?? 0,
       minTimestamp: row.minTimestamp,
       maxTimestamp: row.maxTimestamp,
       fileSizeBytes,
@@ -174,11 +176,12 @@ export async function logRoutes(fastify: FastifyInstance) {
         return reply.code(404).send({ error: `cursor ${cursor} not found in index` });
       }
 
-      // Look up the sentinel: the first line we do NOT want.
-      // line_no = lineNo + limit means "the line right after the last one we want".
+      // Look up the sentinel: the first indexed line at or after lineNo+limit.
+      // The index has gaps (not every line_no is present), so we use >= and
+      // take the nearest row rather than an exact match.
       const sentinelLineNo = lineNo + limit;
       const sentinelRow = db
-        .prepare('SELECT byte_offset FROM index_entries WHERE line_no = ?')
+        .prepare('SELECT byte_offset FROM index_entries WHERE line_no >= ? ORDER BY line_no ASC LIMIT 1')
         .get(sentinelLineNo) as { byte_offset: number } | undefined;
 
       // Determine how many bytes to read.
@@ -227,12 +230,14 @@ export async function logRoutes(fastify: FastifyInstance) {
       const nextLineNo = lineNo + returnedCount;
 
       // Check whether there is actually a next line to paginate to.
+      // Use >= because the index has gaps — nextLineNo itself may not exist.
       const hasNextRow = db
-        .prepare('SELECT 1 FROM index_entries WHERE line_no = ?')
-        .get(nextLineNo) as { 1: number } | undefined;
+        .prepare('SELECT line_no FROM index_entries WHERE line_no >= ? ORDER BY line_no ASC LIMIT 1')
+        .get(nextLineNo) as { line_no: number } | undefined;
 
       const hasMore = Boolean(hasNextRow);
-      const nextCursor = hasMore ? String(nextLineNo) : null;
+      // Use the actual next indexed line_no as the cursor (skip over gaps).
+      const nextCursor = hasMore ? String(hasNextRow!.line_no) : null;
 
       const response: ChunkResponse = { lines, nextCursor, hasMore };
       return response;

@@ -7,14 +7,14 @@ interface ViewerState {
   query: string;
   cursor: string | null;
   hasMore: boolean;
-  totalLines: number | null;
+  indexedEntries: number | null;
   errorMessage: string | null;
 
   // Actions
   setStatus: (status: ViewerStatus) => void;
   setQuery: (query: string) => void;
   setCursor: (cursor: string | null, hasMore: boolean) => void;
-  setTotalLines: (totalLines: number) => void;
+  setIndexedEntries: (indexedEntries: number) => void;
   setError: (message: string | null) => void;
 }
 
@@ -23,13 +23,13 @@ export const useViewerStore = create<ViewerState>((set) => ({
   query: "",
   cursor: null,
   hasMore: true,
-  totalLines: null,
+  indexedEntries: null,
   errorMessage: null,
 
   setStatus: (status) => set({ status }),
   setQuery: (query) => set({ query }),
   setCursor: (cursor, hasMore) => set({ cursor, hasMore }),
-  setTotalLines: (totalLines) => set({ totalLines }),
+  setIndexedEntries: (indexedEntries) => set({ indexedEntries }),
   setError: (errorMessage) =>
     set({ errorMessage, status: errorMessage ? "error" : "idle" }),
 }));

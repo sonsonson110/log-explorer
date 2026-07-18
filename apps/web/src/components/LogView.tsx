@@ -5,7 +5,7 @@ import { fetchMeta } from "../api/client.ts";
 import { useLogWorker } from "../hooks/useLogWorker.ts";
 import type { MetaResponse } from "contracts";
 
-const CHUNK_SIZE = 200;
+const CHUNK_SIZE = 1000;
 
 // ============================================================================
 // Pure Utility Functions
@@ -63,10 +63,10 @@ function formatTimestamp(unixSeconds: number | null): string {
 interface LogViewHeaderProps {
   meta: MetaResponse | null;
   status: string;
-  totalLines: number | null;
+  indexedEntries: number | null;
 }
 
-function LogViewHeader({ meta, status, totalLines }: LogViewHeaderProps) {
+function LogViewHeader({ meta, status, indexedEntries }: LogViewHeaderProps) {
   return (
     <div
       className={clsx(
@@ -90,9 +90,9 @@ function LogViewHeader({ meta, status, totalLines }: LogViewHeaderProps) {
             </div>
             <div className="h-6 w-px bg-zinc-800" />
             <div className={clsx("log-header-field", "flex flex-col")}>
-              <span className="label-text">Total Lines</span>
+              <span className="label-text">Log Entries</span>
               <span className="value-text">
-                {totalLines?.toLocaleString() ?? "Counting..."}
+                {indexedEntries?.toLocaleString() ?? "Counting..."}
               </span>
             </div>
             <div className="h-6 w-px bg-zinc-800" />
@@ -220,11 +220,11 @@ export default function LogView() {
   const {
     status,
     hasMore,
-    totalLines,
+    indexedEntries,
     errorMessage,
     setStatus,
     setCursor,
-    setTotalLines,
+    setIndexedEntries,
     setError,
   } = useViewerStore();
 
@@ -276,8 +276,8 @@ export default function LogView() {
         const metadata = await fetchMeta();
         if (!active) return;
         setMeta(metadata);
-        if (metadata.totalLines !== null) {
-          setTotalLines(metadata.totalLines);
+        if (metadata.indexedEntries !== null) {
+          setIndexedEntries(metadata.indexedEntries);
         }
         // First chunk is fetched by the worker.
         requestChunk("1", CHUNK_SIZE);
@@ -351,7 +351,7 @@ export default function LogView() {
         "flex flex-col h-[calc(100vh-10rem)] bg-zinc-950 border border-zinc-800 rounded overflow-hidden",
       )}
     >
-      <LogViewHeader meta={meta} status={status} totalLines={totalLines} />
+      <LogViewHeader meta={meta} status={status} indexedEntries={indexedEntries} />
 
       {/* Main Logs List Container */}
       <div

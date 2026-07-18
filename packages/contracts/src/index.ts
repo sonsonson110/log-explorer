@@ -1,6 +1,16 @@
 export interface MetaResponse {
-  /** Total number of indexed lines */
-  totalLines: number;
+  /**
+   * Number of successfully parsed + indexed log entries (COUNT of rows in
+   * index_entries). Multi-line log events that don't match the format regex
+   * are skipped by the indexer, so this is ≤ totalPhysicalLines.
+   */
+  indexedEntries: number;
+  /**
+   * Total number of physical lines in the file, including continuation lines
+   * that were not indexed. Equals MAX(line_no) in index_entries because
+   * line_no is incremented for every physical line, even skipped ones.
+   */
+  totalPhysicalLines: number;
   /** Unix epoch seconds of the earliest log entry, or null if no entries */
   minTimestamp: number | null;
   /** Unix epoch seconds of the latest log entry, or null if no entries */
