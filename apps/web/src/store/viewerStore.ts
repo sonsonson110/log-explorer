@@ -1,6 +1,6 @@
-import { create } from 'zustand';
+import { create } from "zustand";
 
-export type ViewerStatus = 'idle' | 'loading' | 'searching' | 'error';
+export type ViewerStatus = "idle" | "loading" | "searching" | "error";
 
 interface ViewerState {
   status: ViewerStatus;
@@ -9,7 +9,7 @@ interface ViewerState {
   hasMore: boolean;
   totalLines: number | null;
   errorMessage: string | null;
-  
+
   // Actions
   setStatus: (status: ViewerStatus) => void;
   setQuery: (query: string) => void;
@@ -19,9 +19,9 @@ interface ViewerState {
 }
 
 export const useViewerStore = create<ViewerState>((set) => ({
-  status: 'idle',
-  query: '',
-  cursor: '1', // start at line 1
+  status: "idle",
+  query: "",
+  cursor: null,
   hasMore: true,
   totalLines: null,
   errorMessage: null,
@@ -30,5 +30,6 @@ export const useViewerStore = create<ViewerState>((set) => ({
   setQuery: (query) => set({ query }),
   setCursor: (cursor, hasMore) => set({ cursor, hasMore }),
   setTotalLines: (totalLines) => set({ totalLines }),
-  setError: (errorMessage) => set({ errorMessage, status: errorMessage ? 'error' : 'idle' }),
+  setError: (errorMessage) =>
+    set({ errorMessage, status: errorMessage ? "error" : "idle" }),
 }));
